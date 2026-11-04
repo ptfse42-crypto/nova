@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvis – Your AI Assistant</title>
+<style>
+:root{--bg:#05070f;--card:rgba(255,255,255,.05);--ink:#eaf2ff;--mute:#8fa0bf;--c1:#00d4ff;--c2:#7a5cff;--line:rgba(120,160,255,.18);--ok:#2ee59d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f3f6ff;--card:rgba(255,255,255,.8);--ink:#0b1226;--mute:#5a6785;--line:rgba(60,90,200,.18)}}
+:root[data-theme="light"]{--bg:#f3f6ff;--card:rgba(255,255,255,.8);--ink:#0b1226;--mute:#5a6785;--line:rgba(60,90,200,.18)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55;overflow-x:hidden}
+#bg{position:fixed;inset:0;z-index:0;width:100%;height:100%}
+.glow{position:fixed;width:520px;height:520px;border-radius:50%;filter:blur(110px);opacity:.28;z-index:0;animation:drift 18s ease-in-out infinite alternate}
+.g1{background:var(--c1);top:-160px;left:-120px}.g2{background:var(--c2);bottom:-180px;right:-140px;animation-delay:-9s}
+@keyframes drift{to{transform:translate(90px,70px) scale(1.2)}}
+nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:4px;padding:12px 18px;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 70%,transparent);border-bottom:1px solid var(--line);flex-wrap:wrap}
+nav .logo{margin-right:auto;font-weight:800;letter-spacing:.18em;font-size:17px;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav a{color:var(--mute);text-decoration:none;padding:7px 13px;border-radius:99px;font-size:14px;transition:.25s}
+nav a:hover{color:var(--ink);background:var(--card)}
+nav a.on{color:#fff;background:linear-gradient(90deg,var(--c1),var(--c2));box-shadow:0 0 18px rgba(0,212,255,.45)}
+main{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:28px 18px 80px}
+section{display:none}
+section.on{display:block;animation:page .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes page{from{opacity:0;transform:translateY(24px) scale(.985);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+h1{font-size:clamp(34px,7vw,64px);line-height:1.05;margin:10px 0 14px;letter-spacing:-.02em}
+h2{font-size:clamp(28px,5vw,40px);margin:0 0 8px}
+.grad{background:linear-gradient(90deg,var(--c1),var(--c2),var(--c1));background-size:200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 5s linear infinite}
+@keyframes sh{to{background-position:200%}}
+.lead{color:var(--mute);max-width:560px;font-size:17px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:center;min-height:62vh}
+@media(max-width:760px){.hero{grid-template-columns:1fr;text-align:center}.hero .lead{margin:auto}.orbwrap{order:-1}}
+.orbwrap{display:grid;place-items:center;height:320px;position:relative}
+.orb{width:190px;height:190px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--c1) 30%,var(--c2) 70%,#10163a);box-shadow:0 0 60px var(--c1),0 0 140px var(--c2);animation:pulse 3.2s ease-in-out infinite}
+.ring{position:absolute;border-radius:50%;border:1.5px solid var(--c1);opacity:.55}
+.r1{width:250px;height:250px;border-style:dashed;animation:spin 14s linear infinite}
+.r2{width:300px;height:300px;border-color:var(--c2);animation:spin 20s linear infinite reverse}
+.r3{width:350px;height:350px;border-style:dotted;animation:spin 30s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{transform:scale(1.07)}}
+.btn{display:inline-block;border:0;cursor:pointer;font:inherit;font-weight:700;color:#fff;text-decoration:none;padding:13px 26px;border-radius:99px;background:linear-gradient(90deg,var(--c1),var(--c2));box-shadow:0 0 22px rgba(0,212,255,.4);transition:.25s;position:relative;overflow:hidden}
+.btn:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 0 38px rgba(122,92,255,.7)}
+.btn.alt{background:var(--card);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.btn+.btn{margin-left:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin:26px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;backdrop-filter:blur(8px);transition:.3s;opacity:0;transform:translateY(30px)}
+.card.in{opacity:1;transform:none;transition:opacity .7s,transform .7s,border-color .3s,box-shadow .3s}
+.card:hover{border-color:var(--c1);box-shadow:0 0 30px rgba(0,212,255,.25);transform:translateY(-6px)}
+.ico{font-size:30px;display:inline-block;animation:fl 3.5s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-6px)}}
+.card h3{margin:10px 0 4px}.card p{margin:0;color:var(--mute);font-size:14.5px}
+.stats{display:flex;gap:26px;flex-wrap:wrap;margin-top:34px}
+.stats b{display:block;font-size:30px}.stats span{color:var(--mute);font-size:13px}
+.scroll{overflow-x:auto;margin-top:22px}
+table{border-collapse:collapse;width:100%;min-width:560px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+th,td{padding:14px;border-bottom:1px solid var(--line);text-align:center;font-size:14.5px}
+th:first-child,td:first-child{text-align:left}
+th.me{color:var(--c1)}td.me{background:rgba(0,212,255,.07)}
+.y{color:var(--ok);font-weight:800}.n{color:var(--mute)}
+tbody tr{opacity:0;transform:translateX(-20px)}tbody tr.in{opacity:1;transform:none;transition:.6s}
+form{max-width:430px;margin-top:20px}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 5px}
+input,select{width:100%;padding:14px 16px;font:inherit;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);transition:.25s}
+input:focus,select:focus{outline:0;border-color:var(--c1);box-shadow:0 0 0 3px rgba(0,212,255,.2)}
+.msg{margin-top:18px;max-width:480px;padding:18px;border-radius:16px;background:var(--card);border:1px solid var(--c1);animation:page .5s}
+.pay dt{font-size:12px;color:var(--mute);margin-top:12px}.pay dd{margin:0;font-weight:700;word-break:break-all}
+.ph{margin-top:30px;padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--mute);font-size:14px}
+.plans .card{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.plans ul{margin:8px 0 14px;padding-left:18px;color:var(--mute);font-size:14px;flex:1}
+.price{font-size:30px;font-weight:800}
+.plans .btn{align-self:stretch;text-align:center}
+.card.best{border-color:var(--c2);box-shadow:0 0 34px rgba(122,92,255,.4)}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:22px 0 6px;max-width:720px}
+.seg button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;font-weight:700;transition:.25s}
+.seg button b{display:block;font-size:13px;color:var(--mute);font-weight:600;margin-top:2px}
+.seg button:hover{border-color:var(--c1);transform:translateY(-3px)}
+.seg button.on{border-color:var(--c2);background:linear-gradient(135deg,rgba(0,212,255,.18),rgba(122,92,255,.28));box-shadow:0 0 24px rgba(122,92,255,.45)}
+.lk{opacity:.4;pointer-events:none;filter:grayscale(1)}
+.seg button:disabled{cursor:not-allowed}
+.seg button.lk::after{content:" 🔒"}
+.bump{animation:bump .45s}
+@keyframes bump{40%{transform:scale(1.08);color:var(--c1)}}
+#gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);background:color-mix(in srgb,var(--bg) 55%,transparent);transition:opacity .8s,backdrop-filter .8s,visibility .8s;padding:20px}
+#gate.done{opacity:0;visibility:hidden;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0);pointer-events:none}
+body.locked{overflow:hidden}
+.gatebox{text-align:center;padding:34px 30px;border-radius:26px;background:var(--card);border:1px solid var(--line);box-shadow:0 0 70px rgba(0,212,255,.3);animation:page .7s;max-width:460px;width:100%}
+.gatebox small{color:var(--mute);letter-spacing:.2em;font-size:12px}
+.clock{position:relative;width:190px;height:190px;margin:18px auto}
+.clock svg{width:100%;height:100%;transform:rotate(-90deg)}
+.clock circle{fill:none;stroke-width:7}
+.clock .bgc{stroke:var(--line)}
+.clock .fg{stroke:url(#tg);stroke-linecap:round;stroke-dasharray:553;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear;filter:drop-shadow(0 0 8px var(--c1))}
+.clock span{position:absolute;inset:0;display:grid;place-items:center;font-size:44px;font-weight:800;font-variant-numeric:tabular-nums}
+.units{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}
+.units div{padding:14px 4px;border-radius:16px;background:var(--bg);border:1px solid var(--line);box-shadow:0 0 18px rgba(0,212,255,.15)}
+.units b{display:block;font-size:clamp(26px,8vw,40px);font-weight:800;font-variant-numeric:tabular-nums;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.units span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.12em}
+.status{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-size:14px;margin:6px 0 4px}
+.dot{width:11px;height:11px;border-radius:50%;background:#2ee59d;box-shadow:0 0 0 0 rgba(46,229,157,.7);animation:ping 1.8s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 11px rgba(46,229,157,0)}100%{box-shadow:0 0 0 0 rgba(46,229,157,0)}}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card,tbody tr{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas><div class="glow g1"></div><div class="glow g2"></div>
+<div id="gate" role="dialog" aria-label="Opening Jarvis">
+  <div class="gatebox">
+    <small>JARVIS OPENS IN</small>
+    <div class="units">
+      <div><b id="cd-d">00</b><span>days</span></div>
+      <div><b id="cd-h">00</b><span>hours</span></div>
+      <div><b id="cd-m">00</b><span>min</span></div>
+      <div><b id="cd-s">00</b><span>sec</span></div>
+    </div>
+    <p class="lead" style="margin:0 auto;font-size:15px">The website opens on 31 December 2026.</p>
+    <button class="btn" id="early" type="button" style="margin:20px 0 10px;width:100%">⚡ Early access – $15</button>
+    <p style="margin:0;font-size:12px;color:var(--mute)">Disclaimer: the $15 fee will be deducted from the Lifetime plan price only. You will have 10 minutes to complete your purchase.</p>
+  </div>
+</div>
+<nav>
+  <span class="logo">JARVIS</span>
+  <a href="#home" data-p="home">Home</a>
+  <a href="#features" data-p="features">Features</a>
+  <a href="#compare" data-p="compare">Plans</a>
+  <a href="#trial" data-p="trial">Free trial</a>
+  <a href="#buy" data-p="buy">Buy</a>
+</nav>
+<main>
+
+<section id="home">
+  <div class="hero">
+    <div>
+      <h1>Meet <span class="grad">Jarvis</span>.<br>Your AI, always on.</h1>
+      <p class="lead">An intelligent assistant that listens, understands and gets things done, so you can focus on what matters.</p>
+      <p><a class="btn" href="#trial">Start free trial</a><a class="btn alt" href="#compare">See plans</a></p>
+    </div>
+    <div class="orbwrap"><div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div><div class="orb"></div></div>
+  </div>
+  <div class="stats">
+    <div><b data-n="24">0</b><span>hours a day, always ready</span></div>
+    <div><b data-n="100">0</b><span>% focused on you</span></div>
+    <div><b data-n="1">0</b><span>second to respond</span></div>
+  </div>
+  <h2 style="margin-top:56px">Pick your <span class="grad">plan</span></h2>
+  <p class="lead">Start free, or go straight to the plan that suits you.</p>
+  <div class="status"><span class="dot"></span><span>Online · All plans available now</span></div>
+  <div class="grid plans">
+    <div class="card"><span class="ico">⏱️</span><h3>Free trial</h3><div class="price">Free</div><p>30 minutes</p><ul><li>Voice control</li><li>Instant answers</li></ul><a class="btn" href="#trial">Try free</a></div>
+    <div class="card"><span class="ico">☀️</span><h3>24 hours</h3><div class="price" id="hp1">[price]</div><p>One full day</p><ul><li>Voice control</li><li>Instant answers</li><li>Smart memory</li></ul><a class="btn pick" data-plan="24h" href="#buy">Buy</a></div>
+    <div class="card"><span class="ico">📅</span><h3>1 week</h3><div class="price" id="hp2">[price]</div><p>7 days</p><ul><li>Everything in 24 hours</li><li>Automation</li><li>Priority support</li></ul><a class="btn pick" data-plan="1w" href="#buy">Buy</a></div>
+    <div class="card best"><span class="ico">♾️</span><h3>Lifetime ⭐</h3><div class="price" id="hp3">[price]</div><p>Pay once, use forever</p><ul><li>Everything in 1 week</li><li>Free updates</li><li>Best value</li></ul><a class="btn pick" data-plan="life" href="#buy">Buy</a></div>
+  </div>
+  <p style="text-align:center"><a class="btn alt" href="#compare">Compare all plans</a></p>
+</section>
+
+<section id="features">
+  <h2>Powerful <span class="grad">features</span></h2>
+  <p class="lead">Everything Jarvis can do for you.</p>
+  <div class="grid">
+    <div class="card"><span class="ico">🎙️</span><h3>Voice control</h3><p>Just speak. Jarvis understands natural language and replies instantly.</p></div>
+    <div class="card"><span class="ico">⚡</span><h3>Instant answers</h3><p>Fast, accurate responses to anything you ask, any time.</p></div>
+    <div class="card"><span class="ico">🧠</span><h3>Smart memory</h3><p>Remembers your preferences so every conversation gets better.</p></div>
+    <div class="card"><span class="ico">🤖</span><h3>Automation</h3><p>Hands off repetitive tasks and let Jarvis handle them for you.</p></div>
+    <div class="card"><span class="ico">🔒</span><h3>Private and secure</h3><p>Your data stays protected with strong security built in.</p></div>
+    <div class="card"><span class="ico">🌍</span><h3>Many languages</h3><p>Talk to Jarvis in the language you are most comfortable with.</p></div>
+  </div>
+</section>
+
+<section id="compare">
+  <h2>Choose your <span class="grad">plan</span></h2>
+  <p class="lead">Start free for 30 minutes, or pick the plan that fits you.</p>
+  <div class="scroll"><table>
+    <thead><tr><th></th><th>Free trial</th><th>24 hours</th><th>1 week</th><th class="me">Lifetime ⭐</th></tr></thead>
+    <tbody>
+      <tr><td>Duration</td><td>30 minutes</td><td>24 hours</td><td>7 days</td><td class="me y">Forever</td></tr>
+      <tr><td>Price</td><td class="y">Free</td><td id="p1">[price]</td><td id="p2">[price]</td><td class="me" id="p3">[price]</td></tr>
+      <tr><td>Voice control</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="me y">✓</td></tr>
+      <tr><td>Instant answers</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="me y">✓</td></tr>
+      <tr><td>Smart memory</td><td class="n">–</td><td class="y">✓</td><td class="y">✓</td><td class="me y">✓</td></tr>
+      <tr><td>Automation</td><td class="n">–</td><td class="n">–</td><td class="y">✓</td><td class="me y">✓</td></tr>
+      <tr><td>Free updates</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="me y">✓</td></tr>
+      <tr><td>Priority support</td><td class="n">–</td><td class="n">–</td><td class="y">✓</td><td class="me y">✓</td></tr>
+      <tr><td></td><td><a class="btn" href="#trial">Try free</a></td><td><a class="btn pick" data-plan="24h" href="#buy">Buy</a></td><td><a class="btn pick" data-plan="1w" href="#buy">Buy</a></td><td class="me"><a class="btn pick" data-plan="life" href="#buy">Buy</a></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="trial">
+  <h2>Start your <span class="grad">30 minute free trial</span></h2>
+  <p class="lead">Get 30 minutes of Jarvis free. Just enter your email, no payment needed.</p>
+  <form id="tf">
+    <label for="te">Email</label>
+    <input id="te" type="email" required placeholder="you@example.com" autocomplete="email">
+    <p><button class="btn" type="submit">Get free trial</button></p>
+  </form>
+  <div class="msg" id="tmsg" hidden></div>
+</section>
+
+<section id="buy">
+  <h2>Get <span class="grad">Jarvis</span></h2>
+  <p class="lead">Pick a plan, enter your email, pay by bank transfer, then send proof of payment on WhatsApp.</p>
+  <div class="status" id="wpill" hidden><span class="dot"></span><span id="wtxt"></span></div>
+  <div class="seg" id="seg">
+    <button type="button" data-plan="24h">24 hours<b id="s1"></b></button>
+    <button type="button" data-plan="1w">1 week<b id="s2"></b></button>
+    <button type="button" data-plan="life">Lifetime<b id="s3"></b></button>
+    <button type="button" data-plan="early">Early access ⚡<b id="s4"></b></button>
+    <button type="button" data-plan="elife">Lifetime for early members<b id="s5"></b></button>
+  </div>
+  <p id="lknote" class="lead" style="font-size:14px;margin:6px 0">🔒 24 hours, 1 week and Lifetime unlock when the countdown ends on 31 December 2026, or once an early member confirms their email under "Lifetime for early members".</p>
+  <label for="be" style="max-width:430px">Your email</label>
+  <input id="be" type="email" placeholder="you@example.com" autocomplete="email" style="max-width:430px">
+  <p id="vrow" hidden><button class="btn alt" type="button" id="vbtn">Confirm email</button></p>
+  <div class="msg" id="vmsg" hidden style="margin-top:10px;max-width:430px"></div>
+  <div class="msg" id="bmsg">
+    <b>Payment details</b>
+    <dl class="pay">
+      <dt>Account name</dt><dd id="pn"></dd>
+      <dt>IBAN</dt><dd id="pi"></dd>
+      <dt>Amount</dt><dd id="pa"></dd>
+    </dl>
+    <p id="edisc" style="font-size:13px;color:var(--mute)" hidden>Disclaimer: the $15 early access fee will be deducted from the Lifetime plan price only.</p>
+    <p>After paying, send the receipt and your email on WhatsApp:</p>
+    <p><a class="btn" id="wa" target="_blank" rel="noopener">Send proof on WhatsApp</a></p>
+    <p id="werr" style="color:#ff6b6b;font-size:13px;margin:0" hidden>Please enter a valid email first.</p>
+  </div>
+</section>
+
+</main>
+<script>
+// ===== EDIT THESE =====
+var WHATSAPP="971509755750";            // your number, digits only, with country code
+var IBAN="AE00 0000 0000 0000 0000 000";
+var ACCOUNT_NAME="[Account holder name]";
+// Early access members: SHA-256 hashes of lowercase emails (so real emails are not visible in the page)
+var EARLY_PAID=[];
+var PLANS={"24h":{n:"24 hours",p:"$2.99 / day"},"1w":{n:"1 week",p:"$7.99 / week"},"life":{n:"Lifetime",p:"$29.99 one-time"},"early":{n:"Early access",p:"$15 fee"},"elife":{n:"Lifetime (early access)",p:"$14.99 one-time"}};
+// ======================
+var pages=["home","features","compare","trial","buy"];
+function reveal(sec){
+  sec.querySelectorAll(".card,tbody tr").forEach(function(e,i){e.classList.remove("in");setTimeout(function(){e.classList.add("in")},120+i*110)});
+  sec.querySelectorAll("[data-n]").forEach(function(e){
+    var t=+e.dataset.n,c=0,s=setInterval(function(){c+=Math.max(1,t/30);if(c>=t){c=t;clearInterval(s)}e.textContent=Math.round(c)},35)});
+}
+function route(){
+  var h=(location.hash||"#home").slice(1);if(pages.indexOf(h)<0)h="home";
+  pages.forEach(function(p){
+    var s=document.getElementById(p);s.classList.toggle("on",p===h);
+    document.querySelector('nav a[data-p="'+p+'"]').classList.toggle("on",p===h);
+    if(p===h)reveal(s);
+  });
+  window.scrollTo(0,0);
+}
+addEventListener("hashchange",route);route();
+document.querySelectorAll(".pick").forEach(function(a){a.addEventListener("click",function(e){if(a.classList.contains("lk")){e.preventDefault();return}setPlan(a.dataset.plan)})});
+["24h","1w","life"].forEach(function(k,i){document.getElementById("p"+(i+1)).textContent=PLANS[k].p;document.getElementById("hp"+(i+1)).textContent=PLANS[k].p});
+
+function save(rec){
+  try{if(window.claude&&claude.use)claude.use("db").then(function(db){
+    if(db)db.collection("signups").doc(rec.type+rec.at).set(rec).catch(function(){});
+  }).catch(function(){})}catch(e){}
+}
+document.getElementById("tf").addEventListener("submit",function(e){
+  e.preventDefault();var em=document.getElementById("te").value.trim(),m=document.getElementById("tmsg");
+  m.hidden=false;m.innerHTML="🎉 You are in! We will send your free trial to <b></b>.";m.querySelector("b").textContent=em;
+  save({email:em,type:"trial",at:Date.now()});
+});
+var cur="24h",be=document.getElementById("be"),wa=document.getElementById("wa");
+function updateWa(){wa.href="https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent("Hi, I paid for Jarvis ("+PLANS[cur].n+" - "+PLANS[cur].p+"). My email: "+be.value.trim()+". Proof of payment attached.")}
+function setPlan(k){
+  cur=k;var pa=document.getElementById("pa");
+  document.querySelectorAll("#seg button").forEach(function(b){b.classList.toggle("on",b.dataset.plan===k)});
+  document.getElementById("pn").textContent=ACCOUNT_NAME;
+  document.getElementById("pi").textContent=IBAN;
+  pa.textContent=PLANS[k].n+" \u2013 "+PLANS[k].p;
+  pa.classList.remove("bump");void pa.offsetWidth;pa.classList.add("bump");document.getElementById("edisc").hidden=(k!=="early");applyGate();
+  updateWa();
+}
+document.querySelectorAll("#seg button").forEach(function(b){b.addEventListener("click",function(){setPlan(b.dataset.plan)})});
+["24h","1w","life","early","elife"].forEach(function(k,i){document.getElementById("s"+(i+1)).textContent=PLANS[k].p});
+be.addEventListener("input",function(){updateWa();document.getElementById("werr").hidden=true;document.getElementById("vmsg").hidden=true;verified=false;applyGate();applyLock();});
+wa.addEventListener("click",function(e){
+  if(!be.value.trim()||!be.checkValidity()){e.preventDefault();document.getElementById("werr").hidden=false;be.focus();return}
+  save({email:be.value.trim(),type:"buy",plan:cur,at:Date.now()});
+});
+var verified=false;
+function applyGate(){var e=(cur==="elife");document.getElementById("vrow").hidden=!e;document.getElementById("bmsg").hidden=e&&!verified;if(!e)document.getElementById("vmsg").hidden=true}
+async function sha(t){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+document.getElementById("vbtn").addEventListener("click",async function(){
+  var vm=document.getElementById("vmsg");vm.hidden=false;verified=false;
+  if(!be.value.trim()||!be.checkValidity()){vm.textContent="Please enter a valid email first.";applyGate();return}
+  var h;try{h=await sha(be.value.trim().toLowerCase())}catch(e){vm.textContent="Could not check right now. Please message us on WhatsApp.";applyGate();return}
+  if(EARLY_PAID.indexOf(h)>-1){verified=true;if(cur!=="elife"){vm.textContent="✓ Early access confirmed. 24 hours, 1 week and Lifetime are unlocked.";applyGate();applyLock();return}vm.textContent="✓ Email confirmed. You are an early access member, so your $15 is deducted. You pay $14.99."}
+  else{vm.textContent="Sorry, you haven't bought early access yet. Please buy Early access first."}
+  applyGate();applyLock();
+});
+var LAUNCH=new Date(2026,11,31,0,0,0).getTime();
+function locked(){return !(verified||Date.now()>=LAUNCH)}
+function applyLock(){
+  var L=locked();
+  document.querySelectorAll('#seg button[data-plan="24h"],#seg button[data-plan="1w"],#seg button[data-plan="life"]').forEach(function(b){b.disabled=L;b.classList.toggle("lk",L)});
+  document.querySelectorAll('.pick[data-plan="24h"],.pick[data-plan="1w"],.pick[data-plan="life"]').forEach(function(a){a.classList.toggle("lk",L)});
+  document.getElementById("lknote").hidden=!L;if(window.updateGate)updateGate();
+  if(L&&(cur==="24h"||cur==="1w"||cur==="life"))setPlan("early");
+}
+setPlan("24h");applyLock();
+
+// opening countdown: the site stays blurred on every page until the date, except the Buy page during a 10 minute early access window
+(function(){
+  var TARGET=new Date(2026,11,31,0,0,0).getTime(),WINDOW=10*60*1000,windowEnd=0;
+  var g=document.getElementById("gate");
+  function pad(n){return n<10?"0"+n:""+n}
+  function page(){return (location.hash||"#home").slice(1)}
+  function isOpen(){return Date.now()>=TARGET||verified}
+  function update(){
+    var show=!(isOpen()||(page()==="buy"&&Date.now()<windowEnd));
+    g.classList.toggle("done",!show);document.body.classList.toggle("locked",show);
+  }
+  function tick(){
+    var sec=Math.max(0,Math.floor((TARGET-Date.now())/1000));
+    document.getElementById("cd-d").textContent=pad(Math.floor(sec/86400));
+    document.getElementById("cd-h").textContent=pad(Math.floor(sec%86400/3600));
+    document.getElementById("cd-m").textContent=pad(Math.floor(sec%3600/60));
+    document.getElementById("cd-s").textContent=pad(sec%60);
+    var left=windowEnd-Date.now(),pill=document.getElementById("wpill"),sp=!isOpen()&&left>0;
+    pill.hidden=!sp;
+    if(sp){var w=Math.ceil(left/1000);document.getElementById("wtxt").textContent="Early access window: "+pad(Math.floor(w/60))+":"+pad(w%60)+" left to buy"}
+    if(Date.now()>=TARGET)applyLock();
+    update();
+  }
+  window.updateGate=update;
+  addEventListener("hashchange",update);
+  document.getElementById("early").addEventListener("click",function(){windowEnd=Date.now()+WINDOW;setPlan("early");location.hash="#buy";update();tick()});
+  setInterval(tick,1000);tick();
+})();
+
+// animated particle network background
+(function(){
+  var c=document.getElementById("bg"),x=c.getContext("2d"),W,H,P=[],mx=-999,my=-999;
+  function size(){W=c.width=innerWidth;H=c.height=innerHeight}size();addEventListener("resize",size);
+  addEventListener("pointermove",function(e){mx=e.clientX;my=e.clientY});
+  for(var i=0;i<70;i++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5});
+  function tick(){
+    x.clearRect(0,0,W,H);
+    P.forEach(function(p,i){
+      p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      x.fillStyle="rgba(0,212,255,.7)";x.beginPath();x.arc(p.x,p.y,1.6,0,6.3);x.fill();
+      for(var j=i+1;j<P.length;j++){var q=P[j],d=Math.hypot(p.x-q.x,p.y-q.y);
+        if(d<120){x.strokeStyle="rgba(122,92,255,"+(.28-d/430)+")";x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke()}}
+      var dm=Math.hypot(p.x-mx,p.y-my);if(dm<150){x.strokeStyle="rgba(0,212,255,.35)";x.beginPath();x.moveTo(p.x,p.y);x.lineTo(mx,my);x.stroke()}
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+</script>
+</body>
+</html>
